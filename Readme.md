@@ -1,5 +1,5 @@
 # Beomaster 5500 — ESP32 IR Web Controller
-<img src="images/screenshot.png" alt="Beomaster 5500" width="400">
+<img src="images/screenshot.png" alt="Beomaster 5500 Web Interface" width="300" style="float: right; margin-right: 20px; margin-bottom: 20px;">
 
 
 ### Author Note 
