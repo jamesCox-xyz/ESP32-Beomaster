@@ -1,11 +1,14 @@
 # Beomaster 5500 — ESP32 IR Web Controller
 
-Note - This is an entirely vibe coded project. I wanted something quick and easy building to control a B&O 5500 hifi from the 80s. The idea was to install a small esp32 module with an IR transmitter in close proximitiy to the hifi so that we can control the device from any room in the house. 
+### Author Note 
+This is an entirely vibe coded project. I wanted to build something quick and easy to control a B&O 5500 hifi from the 80s. The idea was to install a small esp32 module with an IR transmitter in close proximity to the hifi so that we can control the device from any room in the house. 
 
 ### Current Status:
-05/03/2026 - Codebase builds and flashes to XIAO_ESP32C3 sucessfully. GUI looks close enough to B&O hardware for now, we may try improve on this later down the line. I'm waiting for the IR electroncis to develop that further so the controls haven't been tested properly yet!
+05/03/2026 - Codebase builds and flashes to XIAO_ESP32C3 successfully. GUI looks close enough to B&O hardware for now, we may try improve on this later down the line. I'm waiting for the IR electronics to develop that further so the controls haven't been tested properly yet!
 
-### Description: A Wi-Fi-hosted remote control for the Bang & Olufsen Beomaster 5500, built on an ESP32. The device serves a web page that replicates the MCP 5500 Master Control Panel, sending B&O Legacy IR commands when buttons are tapped.
+### Description: 
+
+A Wi-Fi-hosted remote control for the Bang & Olufsen Beomaster 5500, built on an ESP32. The device serves a web page that replicates the MCP 5500 Master Control Panel, sending B&O Legacy IR commands when buttons are tapped.
 
 ---
 
