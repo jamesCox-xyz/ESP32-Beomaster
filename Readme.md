@@ -1,5 +1,7 @@
 # Beomaster 5500 — ESP32 IR Web Controller
 
+![Alt Text](images/screenshot.png)
+
 ### Author Note 
 This is an entirely vibe coded project. I wanted to build something quick and easy to control a B&O 5500 hifi from the 80s. The idea was to install a small esp32 module with an IR transmitter in close proximity to the hifi so that we can control the device from any room in the house. 
 
