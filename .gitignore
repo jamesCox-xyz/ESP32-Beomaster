@@ -1,0 +1,12 @@
+# Wi-Fi credentials — never commit this
+credentials.h
+
+# Arduino build output
+build/
+*.elf
+*.bin
+*.map
+
+# OS files
+.DS_Store
+Thumbs.db
