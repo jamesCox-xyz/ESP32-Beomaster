@@ -1,5 +1,5 @@
 # Beomaster 5500 — ESP32 IR Web Controller
-<img src="images/screenshot.png" alt="Beomaster 5500 Web Interface" width="300" style="float: right; margin-right: 20px; margin-bottom: 20px;">
+
 
 
 ### Author Note 
@@ -12,6 +12,7 @@ This is an entirely vibe coded project. I wanted to build something quick and ea
 
 A Wi-Fi-hosted remote control for the Bang & Olufsen Beomaster 5500, built on an ESP32. The device serves a web page that replicates the MCP 5500 Master Control Panel, sending B&O Legacy IR commands when buttons are tapped.
 
+<img src="images/screenshot.png" alt="Beomaster 5500 Web Interface" width="300">
 ---
 
 ## Table of Contents
