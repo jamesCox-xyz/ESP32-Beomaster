@@ -22,8 +22,7 @@
 // ---------- Configuration ----------------------------------------------------
 
 #define IR_TX_PIN        4       // GPIO pin to the IR LED transistor base driver
-#define IR_LEDC_CHANNEL  0       // ESP32 LEDC channel (0–15)
-#define IR_CIRCUIT_READY 0       // Set to 1 when hardware is connected
+#define IR_CIRCUIT_READY 1      // Set to 1 when hardware is connected
 
 // ---------- Protocol timing (µs) ---------------------------------------------
 
@@ -37,13 +36,13 @@
 
 static inline void ir_carrier_on() {
 #if IR_CIRCUIT_READY
-    ledcWrite(IR_LEDC_CHANNEL, 128);   // ~50 % duty cycle on 40 kHz carrier
+    ledcWrite(IR_TX_PIN, 2);     // ~50 % duty cycle on 455 kHz carrier (2-bit: 2/4)
 #endif
 }
 
 static inline void ir_carrier_off() {
 #if IR_CIRCUIT_READY
-    ledcWrite(IR_LEDC_CHANNEL, 0);
+    ledcWrite(IR_TX_PIN, 0);
 #endif
 }
 
@@ -65,9 +64,12 @@ static void ir_space(uint16_t us) {
  */
 void ir_init() {
 #if IR_CIRCUIT_READY
-    ledcSetup(IR_LEDC_CHANNEL, 40000, 8);   // 40 kHz, 8-bit resolution
-    ledcAttachPin(IR_TX_PIN, IR_LEDC_CHANNEL);
-    ledcWrite(IR_LEDC_CHANNEL, 0);          // Start with carrier off
+    if (!ledcAttach(IR_TX_PIN, 455000, 2)) {  // 455 kHz, 2-bit resolution (core v3 API)
+        Serial.println("[IR] ERROR: ledcAttach failed — check pin/frequency/resolution");
+        return;
+    }
+    ledcWrite(IR_TX_PIN, 0);           // Start with carrier off
+    Serial.printf("[IR] LEDC actual freq: %lu Hz\n", ledcReadFreq(IR_TX_PIN));
     Serial.println("[IR] Hardware transmitter initialised on GPIO " + String(IR_TX_PIN));
 #else
     Serial.println("[IR] STUB mode — IR_CIRCUIT_READY=0. Commands logged only.");
