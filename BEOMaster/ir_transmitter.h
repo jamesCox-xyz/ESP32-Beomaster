@@ -36,7 +36,7 @@
 
 static inline void ir_carrier_on() {
 #if IR_CIRCUIT_READY
-    ledcWrite(IR_TX_PIN, 2);     // ~50 % duty cycle on 455 kHz carrier (2-bit: 2/4)
+    ledcWrite(IR_TX_PIN, 1);     // 25 % duty cycle on 455 kHz carrier (2-bit: 1/4)
 #endif
 }
 

@@ -29,9 +29,61 @@
 #include "ir_transmitter.h"
 #include "web_ui.h"
 #include "wifi_setup_ui.h"
+#include "settings_ui.h"
 #include "oled_display.h"
 
 // Wi-Fi credentials come from credentials.h as WIFI_SSID / WIFI_PASSWORD macros
+
+// ---------- Button code table ------------------------------------------------
+
+struct ButtonCode {
+    const char* key;
+    uint8_t     defaultCode;
+    uint8_t     code;
+};
+
+static ButtonCode buttons[] = {
+    { "standby",      0x0C, 0x0C },
+    { "volume_up",    0x60, 0x60 },
+    { "volume_down",  0x64, 0x64 },
+    { "mute",         0x0D, 0x0D },
+    { "loudness",     0x3C, 0x3C },
+    { "bass_up",      0x70, 0x70 },
+    { "bass_down",    0x74, 0x74 },
+    { "treble_up",    0x78, 0x78 },
+    { "treble_down",  0x7C, 0x7C },
+    { "bal_left",     0x68, 0x68 },
+    { "bal_right",    0x6C, 0x6C },
+    { "fm",           0x81, 0x81 },
+    { "am",           0x82, 0x82 },
+    { "phono",        0x83, 0x83 },
+    { "cd",           0x92, 0x92 },
+    { "tape1",        0x87, 0x87 },
+    { "tape2",        0x88, 0x88 },
+    { "aux",          0x8A, 0x8A },
+    { "preset_up",    0x1E, 0x1E },
+    { "preset_down",  0x1F, 0x1F },
+    { "tune_up",      0x1C, 0x1C },
+    { "tune_down",    0x1D, 0x1D },
+    { "store_preset", 0x5C, 0x5C },
+    { "num_0",        0x20, 0x20 },
+    { "num_1",        0x21, 0x21 },
+    { "num_2",        0x22, 0x22 },
+    { "num_3",        0x23, 0x23 },
+    { "num_4",        0x24, 0x24 },
+    { "num_5",        0x25, 0x25 },
+    { "num_6",        0x26, 0x26 },
+    { "num_7",        0x27, 0x27 },
+    { "num_8",        0x28, 0x28 },
+    { "num_9",        0x29, 0x29 },
+    { "play",         0x35, 0x35 },
+    { "stop",         0x36, 0x36 },
+    { "record",       0x37, 0x37 },
+    { "timer",        0x44, 0x44 },
+    { "clock",        0x43, 0x43 },
+    { "sleep",        0x45, 0x45 },
+};
+const int NUM_BUTTONS = sizeof(buttons) / sizeof(buttons[0]);
 
 // ---------- Global State -----------------------------------------------------
 
@@ -39,6 +91,14 @@ const byte DNS_PORT = 53;
 DNSServer dnsServer;
 Preferences preferences;
 bool apMode = false;
+
+void loadButtonCodes() {
+    preferences.begin("beo-codes", true);
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        buttons[i].code = preferences.getUChar(buttons[i].key, buttons[i].defaultCode);
+    }
+    preferences.end();
+}
 
 // ---------- HTTP server on port 80 -------------------------------------------
 WebServer server(80);
@@ -98,6 +158,38 @@ void handleCaptivePortalRedirect() {
     server.send(302, "text/plain", "");
 }
 
+void handleSettings() {
+    server.send_P(200, "text/html", SETTINGS_HTML);
+}
+
+void handleCodes() {
+    String json = "{";
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        if (i > 0) json += ",";
+        json += "\"";
+        json += buttons[i].key;
+        json += "\":";
+        json += buttons[i].code;
+    }
+    json += "}";
+    server.send(200, "application/json", json);
+}
+
+void handleSaveSettings() {
+    preferences.begin("beo-codes", false);
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        if (server.hasArg(buttons[i].key)) {
+            long val = server.arg(buttons[i].key).toInt();
+            if (val >= 0 && val <= 255) {
+                buttons[i].code = (uint8_t)val;
+                preferences.putUChar(buttons[i].key, buttons[i].code);
+            }
+        }
+    }
+    preferences.end();
+    server.send(200, "text/plain", "OK");
+}
+
 void handleNotFound() {
     server.send(404, "text/plain", "Not found");
 }
@@ -112,6 +204,9 @@ void setup() {
     // Initialise OLED display
     oled_init();
     oled_set_status("BOOT", "connecting...");
+
+    // Load saved button codes from flash (falls back to defaults)
+    loadButtonCodes();
 
     // Initialise IR transmitter (stub or real depending on IR_CIRCUIT_READY)
     ir_init();
@@ -163,8 +258,11 @@ void setup() {
         oled_set_status("ACTIVE", WiFi.localIP().toString().c_str());
 
         // Register HTTP routes
-        server.on("/",    HTTP_GET, handleRoot);
-        server.on("/cmd", HTTP_GET, handleCommand);
+        server.on("/",              HTTP_GET,  handleRoot);
+        server.on("/cmd",           HTTP_GET,  handleCommand);
+        server.on("/codes",         HTTP_GET,  handleCodes);
+        server.on("/settings",      HTTP_GET,  handleSettings);
+        server.on("/save_settings", HTTP_POST, handleSaveSettings);
         server.onNotFound(handleNotFound);
     }
 
